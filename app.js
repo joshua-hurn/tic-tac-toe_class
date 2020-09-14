@@ -1,6 +1,9 @@
 const cells = document.querySelectorAll(".row > div");
-const resetButton = document.getElementById("reset-button");
-const winningCombos = [
+let turnCount = 0;
+let gameOver = false;
+let winningBox = document.getElementById("winning-message");
+let resetButton = document.getElementById("reset-button");
+let winningCombos = [
     [cells[0], cells[1], cells[2]],
     [cells[3], cells[4], cells[5]],
     [cells[6], cells[7], cells[8]],
@@ -10,69 +13,57 @@ const winningCombos = [
     [cells[0], cells[4], cells[8]],
     [cells[2], cells[4], cells[6]],
 ];
-let currentPlayer = "X";
-let turnCount = 0;
-let isGameOver = false;
 
-resetButton.addEventListener("click", resetGame);
+resetButton.addEventListener("click", function () {
+    window.location.reload();
+});
 
 cells.forEach(function (cell) {
-    cell.addEventListener("click", function (e) {
-        if (e.target.textContent === "" && isGameOver === false) {
-            e.target.textContent = currentPlayer;
-
+    cell.addEventListener("click", function () {
+        if (turnCount % 2 === 0 && gameOver === false) {
+            cell.innerText = "X";
             turnCount++;
             checkWin();
-            if (currentPlayer === "X") {
-                currentPlayer = "O";
-            } else {
-                currentPlayer = "X";
-            }
+        } else if (turnCount % 2 === 1 && gameOver === false) {
+            cell.innerText = "O";
+            turnCount++; // turnCount = turnCount + 1
+            checkWin();
         }
-    });
+    }, { once: true });
 });
 
 function checkWin() {
     for (let i = 0; i < winningCombos.length; i++) {
-        let XCount = 0;
-        let OCount = 0;
-
+        // loop through winningCombos
+        let xCount = 0;
+        let oCount = 0;
+        
         for (let j = 0; j < winningCombos[i].length; j++) {
+            // loop through each inner array.
+            
             if (winningCombos[i][j].textContent === "X") {
-                XCount++
+                xCount++
             } else if (winningCombos[i][j].textContent === "O") {
-                OCount++
+                oCount++
             }
         }
 
-        if (XCount === 3) {
+        if (xCount == 3) {
+            gameOver = true;
             setTimeout(() => {
-                alert("X Wins");
+                winningBox.textContent = "X Wins!";
+                resetButton.style.display = "block";
             }, 0);
-            isGameOver = true;
-            resetButton.style.display = "block";
-        } else if (OCount === 3) {
+        } else if (oCount == 3) {
+            gameOver = true;
             setTimeout(() => {
-                alert("O Wins");
+                winningBox.textContent = "O Wins!";
+                resetButton.style.display = "block";            
             }, 0);
-            isGameOver = true;
-            resetButton.style.display = "block";
-        } else if (turnCount === 9) {
-            setTimeout(() => {
-                alert("Draw");
-            }, 0);
-            isGameOver = true;
-            resetButton.style.display = "block";
-            break;
         }
     }
-}
 
-function resetGame() {
-    turnCount = 0;
-    currentPlayer = "X";
-
-    cells.forEach(function (cell) {
-        cell.textContent = "";
-    });
+    if (turnCount == 9 && !gameOver) {
+        alert("Draw!");
+    }
 }
